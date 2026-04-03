@@ -1,4 +1,4 @@
-# ContainerFile for V-22 Osprey
+# V22-OSPREY install: svn co https://svn.code.sf.net/p/flightgear/fgaddon/branches/release-2024.1/Aircraft/V-22-Osprey/
 # Start with a standard RHEL Image Mode image for 9.4
 FROM registry.redhat.io/rhel9/rhel-bootc:9.4
 
@@ -50,7 +50,7 @@ RUN firewall-offline-cmd --zone=public --add-port=22/tcp && \
 
 # Create a systemd unit to recursively make the root filesystem subtree
 # shared as required by OVN images
-COPY make-rshared.service /etc/systemd/system/microshift-make-rshared.service
+COPY microshift-make-rshared.service /etc/systemd/system/microshift-make-rshared.service
 RUN systemctl enable microshift-make-rshared.service
 
 # Pull the container images into /usr/lib/containers/storage:
@@ -80,10 +80,6 @@ RUN chmod 755 /usr/bin/microshift-copy-images && \
     mkdir -p /usr/lib/systemd/system/microshift.service.d
 
 COPY microshift-copy-images.conf /usr/lib/systemd/system/microshift.service.d/microshift-copy-images.conf
-RUN cat > /usr/lib/systemd/system/microshift.service.d/microshift-copy-images.conf <<EOF
-[Service]
-ExecStartPre=/usr/bin/microshift-copy-images
-EOF
 
 # Create a service to regenerate the cdi mappings for the NVIDIA Jetson Orin iGPU
 COPY nvidia-cdi.service /usr/lib/systemd/system/nvidia-cdi.service
