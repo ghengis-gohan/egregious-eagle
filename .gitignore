@@ -1,0 +1,99 @@
+# OS
+.DS_Store
+Thumbs.db
+ehthumbs.db
+Icon?
+desktop.ini
+
+# IDEs / editors
+.vscode/
+.idea/
+*.suo
+*.user
+*.userosscache
+*.sln.docstates
+*.sw?
+*~.nib
+*.sublime-project
+*.sublime-workspace
+
+# JetBrains
+*.iml
+out/
+.idea/
+
+# macOS
+.DS_Store
+.AppleDouble
+.LSOverride
+._*
+.Spotlight-V100
+.Trashes
+
+# Linux
+*~
+.nfs*
+
+# Windows
+Thumbs.db
+ehthumbs.db
+Desktop.ini
+$RECYCLE.BIN/
+
+# Node
+node_modules/
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+package-lock.json
+yarn.lock
+.pnp.*
+.pnpm-debug.log
+
+# Python
+__pycache__/
+*.py[cod]
+*.pyo
+*.pyd
+*.pytest_cache/
+.pytest_cache/
+venv/
+ENV/
+env/
+.venv/
+pip-log.txt
+pip-delete-this-directory.txt
+
+# Build
+dist/
+build/
+tmp/
+temp/
+*.log
+*.aux
+*.out
+*.class
+*.jar
+*.war
+*.ear
+
+# Backups
+*.bak
+*.tmp
+*.swp
+*.swo
+
+# Secrets
+.env
+.env.local
+.env.*.local
+*.pem
+*.key
+*.crt
+*.p12
+
+# Docker
+docker-compose.override.yml
+.docker/
+
+pull-secret.yaml
