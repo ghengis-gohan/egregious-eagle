@@ -2,8 +2,7 @@
 Description=FlightGear Kiosk Autostart
 # Ensure the service starts after the basic system is up
 After=systemd-user-sessions.service plymouth-quit-wait.service
-# If you are using a network-dependent simulator feature, uncomment the next line
-# Wants=network-online.target
+
 
 [Service]
 # It is best practice to run the simulator as a non-root user
@@ -11,17 +10,16 @@ User=flightuser
 Group=flightuser
 
 # Set up the environment for Wayland/Cage
+Environment=WLR_BACKENDS=headless
 Environment=WLR_LIBINPUT_NO_DEVICES=1 
 
 # Launch Cage, which in turn launches FlightGear full-screen
 # Change the --aircraft parameter for your different image builds
-ExecStart=/usr/bin/cage -- /usr/bin/fgfs --aircraft=V22-Osprey --heading=0 lat=38.7814703666502  9, lon=-104.68581950660891
+ExecStart=/usr/bin/cage -- /usr/local/bin/start-simulator.sh --aircraft=V22-Osprey --heading=0 --lat=38.78147036665029 --lon=-104.68581950660891
 
 # Automatically restart the simulator if it crashes or someone exits it
 Restart=always
 RestartSec=5
-
-# Standard output logging to journalctl for debugging
 StandardOutput=journal
 StandardError=journal
 

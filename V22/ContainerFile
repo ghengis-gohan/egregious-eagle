@@ -1,6 +1,3 @@
-# F35B svn co https://svn.code.sf.net/p/flightgear/fgaddon/branches/release-2024.1/Aircraft/F-35B/
-# A-10 svn co https://svn.code.sf.net/p/flightgear/fgaddon/branches/release-2024.1/Aircraft/A-10
-
 # ContainerFile for V-22 Osprey
 # Start with a standard RHEL Image Mode image for 9.4
 FROM registry.redhat.io/rhel9/rhel-bootc:9.4
@@ -44,7 +41,7 @@ RUN if [ -z "${USER_PASSWD}" ] ; then \
         echo USER_PASSWD is a mandatory build argument && exit 1 ; \
     fi
 RUN useradd -m -d /var/home/redhat -G wheel redhat && \
-    echo "redhat:${USER_PASSWD}" | chpasswd
+    echo "redhat:${USER_PASSWD}" | chpasswd || true
 
 # Mandatory firewall configuration for microshift
 RUN firewall-offline-cmd --zone=public --add-port=22/tcp && \
@@ -53,18 +50,9 @@ RUN firewall-offline-cmd --zone=public --add-port=22/tcp && \
 
 # Create a systemd unit to recursively make the root filesystem subtree
 # shared as required by OVN images
-RUN cat > /etc/systemd/system/microshift-make-rshared.service <<'EOF'
-[Unit]
-Description=Make root filesystem shared
-Before=microshift.service
-ConditionVirtualization=container
-[Service]
-Type=oneshot
-ExecStart=/usr/bin/mount --make-rshared /
-[Install]
-WantedBy=multi-user.target
-EOF
+COPY make-rshared.service /etc/systemd/system/microshift-make-rshared.service
 RUN systemctl enable microshift-make-rshared.service
+
 # Pull the container images into /usr/lib/containers/storage:
 # - Each image goes into a separate sub-directory
 # - Sub-directories are named after the image reference string SHA
@@ -87,37 +75,18 @@ RUN --mount=type=secret,id=pullsecret,dst=/run/secrets/pull-secret.json \
 # In this case, it is not necessary to update /etc/containers/storage.conf with
 # the additional store path.
 # See https://issues.redhat.com/browse/RHEL-75827
-RUN cat > /usr/bin/microshift-copy-images <<EOF
-#!/bin/bash
-set -eux -o pipefail
-while IFS="," read -r img sha ; do
-    skopeo copy --preserve-digests \
-        "dir:${IMAGE_STORAGE_DIR}/\${sha}" \
-        "containers-storage:\${img}"
-done < "${IMAGE_LIST_FILE}"
-EOF
-
+COPY microshift-copy-images /usr/bin/microshift-copy-images
 RUN chmod 755 /usr/bin/microshift-copy-images && \
     mkdir -p /usr/lib/systemd/system/microshift.service.d
 
+COPY microshift-copy-images.conf /usr/lib/systemd/system/microshift.service.d/microshift-copy-images.conf
 RUN cat > /usr/lib/systemd/system/microshift.service.d/microshift-copy-images.conf <<EOF
 [Service]
 ExecStartPre=/usr/bin/microshift-copy-images
 EOF
 
 # Create a service to regenerate the cdi mappings for the NVIDIA Jetson Orin iGPU
-RUN cat > /usr/lib/systemd/system/nvidia-cdi.service <<EOF
-[Unit]
-Description=Generate the nvidia cdi yaml file
-Requires=multi-user.target
-After=multi-user.target
-[Service]
-Type=oneshot
-ExecStart=nvidia-ctk cdi generate --output=/etc/cdi/nvidia
-RemainAfterExit=yes
-[Install]
-WantedBy=multi-user.target
-EOF
+COPY nvidia-cdi.service /usr/lib/systemd/system/nvidia-cdi.service
 RUN systemctl enable nvidia-cdi.service
 
 # Mandatory firewall configuration for microshift (and VNC)
