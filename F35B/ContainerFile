@@ -96,7 +96,8 @@ RUN usermod -a -G video redhat
 
 # Install the Wayland kiosk compositor (Cage) and FlightGear
 # Note: You may need to enable EPEL or custom repos for these on aarch64
-RUN dnf install -y cage wayvnc flightgear subversion && \
+# testing
+RUN dnf install -y cage wayvnc FlightGear subversion && \
     dnf clean all
 
 # Create a dedicated non-root user to run the simulator
