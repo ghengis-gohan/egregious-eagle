@@ -1,14 +1,8 @@
-# V22-OSPREY install: svn co https://svn.code.sf.net/p/flightgear/fgaddon/branches/release-2024.1/Aircraft/V-22-Osprey/
 # Start with a standard RHEL Image Mode image for 9.4
 FROM registry.redhat.io/rhel9/rhel-bootc:9.4
 
-# Enable CRB (required for many EPEL packages)
-
-# Install EPEL release
-RUN dnf install -y epel-release || dnf install -y https://dl.fedoraproject.org/pub/epel/epel-release-latest-9.noarch.rpm
-RUN sudo subscription-manager repos --enable codeready-builder-for-rhel-9-$(arch)-rpms
-# 1. Install Weston (Display/Streamer) and SVN
-RUN dnf install -y weston && \
+# Install Weston (Display/Streamer) and SVN
+RUN dnf install -y weston podman && \
     dnf clean all
 
 # Setup folders to store microshift images for offline image creation
@@ -110,11 +104,15 @@ COPY flightgear.service /etc/systemd/system/flightgear.service
 # Enable the service so it runs automatically on boot
 RUN systemctl enable flightgear.service
 
-# Download the V-22 Osprey directly to the target directory
-RUN svn co https://svn.code.sf.net/p/flightgear/fgaddon/trunk/Aircraft/V22-Osprey /usr/share/games/flightgear/Aircraft/V22-Osprey
-
 # Optionnal - Add RHEM agents for integration with Red Hat Edge Manager
 RUN dnf -y copr enable @redhat-et/flightctl && \
     dnf -y install flightctl-agent && \
+    dnf -y clean all && \
+    systemctl enable flightctl-agent.service
+
+RUN dnf config-manager --add-repo https://rpm.flightctl.io/flightctl-epel.repo && \
+    dnf -y install python3-pip && pip install podman-compose && \
+    dnf -y install flightctl-agent-1.0.2-1.el9.aarch64 && \
+    dnf -y install https://dl.fedoraproject.org/pub/epel/epel-release-latest-9.noarch.rpm lorax && \
     dnf -y clean all && \
     systemctl enable flightctl-agent.service
