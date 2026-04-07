@@ -1,7 +1,7 @@
 # Start with a standard RHEL Image Mode image for 9.4
 FROM registry.redhat.io/rhel9/rhel-bootc:9.4
 
-RUN subscription-manager register --username ${RH_REG_USERNAME} --password ${RH_REG_PASSWORD} && \
+RUN subscription-manager register --username RH_REG_USERNAME --password RH_REG_PASSWORD && \
     dnf clean all
 
 # Install Weston (Display/Streamer) and SVN
