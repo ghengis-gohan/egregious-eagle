@@ -10,8 +10,7 @@ sleep 3
 # - Passes the Jetson's GPU (--device=/dev/dri)
 # - Passes the Weston display socket (-v and -e)
 # - Pulls the pre-built V-22 app image
-podman run --rm --net=host \
-  --device=/dev/dri \
+podman run --rm --net=host --ipc=host --device=/dev/dri --security-opt=label=disable \
   -v /run/user/$(id -u)/wayland-1:/tmp/wayland-1 \
   -e WAYLAND_DISPLAY=/tmp/wayland-1 \
-  quay.io/rh-ee-soanders/egregious-eagle:fgv22
+  quay.io/rh-ee-soanders/egregious-eagle/fgfs-a10:latest
