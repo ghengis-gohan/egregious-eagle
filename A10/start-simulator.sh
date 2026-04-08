@@ -14,4 +14,4 @@ podman run --rm --net=host \
   --device=/dev/dri \
   -v /run/user/$(id -u)/wayland-1:/tmp/wayland-1 \
   -e WAYLAND_DISPLAY=/tmp/wayland-1 \
-  quay.io/rh-ee-soanders/egregious-eagle:v22
+  quay.io/rh-ee-soanders/egregious-eagle:fgv22

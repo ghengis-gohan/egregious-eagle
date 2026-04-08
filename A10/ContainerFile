@@ -1,0 +1,12 @@
+# Start with Fedora 40 (native ARM64 support for FlightGear)
+FROM quay.io/fedora/fedora:latest
+
+# Install FlightGear and Subversion
+RUN dnf install -y FlightGear subversion && \
+    dnf clean all
+
+# Download the A-10
+RUN svn co https://svn.code.sf.net/p/flightgear/fgaddon/trunk/Aircraft/A-10 /usr/share/games/flightgear/Aircraft/A-10
+
+# When this container starts, immediately launch the simulator
+ENTRYPOINT ["fgfs", "--aircraft=A-10", "--airport=KCOS", "--runway=35R", "--timeofday=noon"]

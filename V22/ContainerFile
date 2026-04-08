@@ -1,0 +1,13 @@
+# Start with Fedora 40 (native ARM64 support for FlightGear)
+FROM quay.io/fedora/fedora:latest
+
+# Install FlightGear and Subversion
+RUN dnf install -y FlightGear subversion dbus-x11&& mesa-dri-drivers glx-utils \
+    dnf clean all
+
+# Download the V-22 Osprey
+RUN svn co https://svn.code.sf.net/p/flightgear/fgaddon/trunk/Aircraft/V22-Osprey /usr/share/games/flightgear/Aircraft/V22-Osprey
+
+RUN dnf install -y dbus-x11
+# When this container starts, immediately launch the simulator
+ENTRYPOINT ["dbus-launch", "fgfs", "--aircraft=V22-Osprey", "--airport=KCOS", "--runway=35R", "--timeofday=noon"]

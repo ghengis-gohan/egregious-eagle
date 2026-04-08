@@ -1,0 +1,20 @@
+[Unit]
+Description=FlightGear Container Autostart (Weston + Podman)
+After=systemd-user-sessions.service plymouth-quit-wait.service
+
+[Service]
+# Run as our restricted user
+User=flightuser
+Group=flightuser
+
+# Execute the bridge script that starts Weston and the Fedora container
+ExecStart=/usr/local/bin/start-simulator.sh
+
+# Automatically restart if the container crashes or the script exits
+Restart=always
+RestartSec=5
+StandardOutput=journal
+StandardError=journal
+
+[Install]
+WantedBy=multi-user.target
