@@ -124,3 +124,8 @@ RUN dnf config-manager --add-repo https://rpm.flightctl.io/flightctl-epel.repo &
     dnf -y install https://dl.fedoraproject.org/pub/epel/epel-release-latest-9.noarch.rpm lorax && \
     dnf -y clean all && \
     systemctl enable flightctl-agent.service
+
+ARG FLIGHTCTL_PASSWD
+RUN flightctl login --username admin --password $"${FLIGHTCTL_PASSWD}" api.modern-recon.apps.cluster-p5gmw.dynamic.redhatworkshops.io 
+RUN flightctl certificate request --signer=enrollment --expiration=365d --output=embedded > config.yaml
+COPY config.yaml /etc/flightctl/config.yaml
