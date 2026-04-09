@@ -111,6 +111,7 @@ COPY flightgear.service /etc/systemd/system/flightgear.service
 
 # Enable the service so it runs automatically on boot
 RUN systemctl enable flightgear.service
+RUN dnf -y clean all
 # RUN dnf config-manager addrepo --from-repofile=https://rpm.flightctl.io/flightctl-fedora.repo
 RUN subscription-manager repos --enable rhacm-2.13-for-rhel-9-aarch64-rpms
 RUN dnf install -y flightctl-ctl
