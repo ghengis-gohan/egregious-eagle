@@ -4,7 +4,7 @@ FROM registry.redhat.io/rhel9/rhel-bootc:9.4
 ARG RH_REG_USERNAME
 ARG RH_REG_PASSWD
 
-RUN subscription-manager register --username RH_REG_USERNAME --password RH_REG_PASSWORD --force && \
+RUN sudo subscription-manager repos --enable codeready-builder-for-rhel-9-aarch64-rpms || \
     dnf config-manager --set-enabled codeready-builder-for-rhel-9-aarch64-rpms 
 # RUN dnf config-manager --set-enabled crb
 RUN dnf install -y https://dl.fedoraproject.org/pub/epel/epel-release-latest-9.noarch.rpm
