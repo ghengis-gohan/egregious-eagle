@@ -2,7 +2,7 @@
 FROM quay.io/fedora/fedora:latest
 
 # Install FlightGear and Subversion
-RUN dnf install -y FlightGear subversion dbus-x11&& mesa-dri-drivers glx-utils \
+RUN dnf install -y FlightGear subversion dbus-x11 mesa-dri-drivers glx-utils \
     dnf clean all
 
 # Download the A-10
