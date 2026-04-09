@@ -111,11 +111,13 @@ COPY flightgear.service /etc/systemd/system/flightgear.service
 
 # Enable the service so it runs automatically on boot
 RUN systemctl enable flightgear.service
-
+RUN dnf config-manager addrepo --from-repofile=https://rpm.flightctl.io/flightctl-fedora.repo
+RUN subscription-manager repos --enable https://rpm.flightctl.io/flightctl-epel.repo
+RUN dnf install -y flightctl-ctl
 # Optionnal - Add RHEM agents for integration with Red Hat Edge Manager
 RUN dnf -y copr enable @redhat-et/flightctl && \
     dnf -y install python3-pip && pip install podman-compose && \
-    dnf -y install flightctl-agent-1.0.2-1.el9.aarch64 && \
+#    dnf -y install flightctl-agent-1.0.2-1.el9.aarch64 && \
     dnf -y clean all && \
     systemctl enable flightctl-agent.service
 
