@@ -6,7 +6,7 @@ ARG RH_REG_PASSWD
 
 RUN sudo subscription-manager repos --enable codeready-builder-for-rhel-9-aarch64-rpms || \
     dnf config-manager --set-enabled codeready-builder-for-rhel-9-aarch64-rpms 
-# RUN dnf config-manager --set-enabled crb
+
 RUN dnf install -y https://dl.fedoraproject.org/pub/epel/epel-release-latest-9.noarch.rpm
 # Install Weston (Display/Streamer) and SVN
 RUN dnf install -y weston podman && \
@@ -114,19 +114,12 @@ RUN systemctl enable flightgear.service
 
 # Optionnal - Add RHEM agents for integration with Red Hat Edge Manager
 RUN dnf -y copr enable @redhat-et/flightctl && \
-    dnf -y install flightctl-agent && \
-    dnf -y clean all && \
-    systemctl enable flightctl-agent.service
-
-RUN dnf config-manager --add-repo https://rpm.flightctl.io/flightctl-epel.repo && \
-    dnf -y copr enable @redhat-et/flightctl && \
     dnf -y install python3-pip && pip install podman-compose && \
     dnf -y install flightctl-agent-1.0.2-1.el9.aarch64 && \
-    dnf -y install https://dl.fedoraproject.org/pub/epel/epel-release-latest-9.noarch.rpm lorax && \
     dnf -y clean all && \
     systemctl enable flightctl-agent.service
 
-RUN podman login quay.io --username "${USER_NAME}" --password "${USER_PASSWD}"
+# RUN podman login quay.io --username "${USER_NAME}" --password "${USER_PASSWD}"
 ARG FLIGHTCTL_PASSWD
 RUN flightctl login --username admin --password "${FLIGHTCTL_PASSWD}" api.modern-recon.apps.cluster-p5gmw.dynamic.redhatworkshops.io 
 RUN flightctl certificate request --signer=enrollment --expiration=365d --output=embedded > config.yaml
