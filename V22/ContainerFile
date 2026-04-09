@@ -114,7 +114,7 @@ ARG RH_REG_PASSWD
 RUN subscription-manager register --username "${RH_REG_USERNAME}" --password "${RH_REG_PASSWD}" --auto-attach
 # RUN dnf config-manager addrepo --from-repofile=https://rpm.flightctl.io/flightctl-fedora.repo
 RUN subscription-manager repos --enable rhacm-2.13-for-rhel-9-aarch64-rpms
-RUN dnf install -y flightctl-ctl || \
+RUN dnf install -y flightctl-cli || \
     dnf -y install flightctl-agent-1.0.2-1.el9.aarch64 || \
     dnf -y install flightctl-agent
 # Optionnal - Add RHEM agents for integration with Red Hat Edge Manager
