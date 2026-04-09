@@ -1,9 +1,6 @@
 # Start with a standard RHEL Image Mode image for 9.4
 FROM registry.redhat.io/rhel9/rhel-bootc:9.4
 
-ARG RH_REG_USERNAME
-ARG RH_REG_PASSWD
-
 RUN sudo subscription-manager repos --enable codeready-builder-for-rhel-9-aarch64-rpms || \
     dnf config-manager --set-enabled codeready-builder-for-rhel-9-aarch64-rpms 
 
@@ -111,7 +108,10 @@ COPY flightgear.service /etc/systemd/system/flightgear.service
 
 # Enable the service so it runs automatically on boot
 RUN systemctl enable flightgear.service
-RUN dnf -y clean all
+RUN subscription-manager clean
+ARG RH_REG_USERNAME
+ARG RH_REG_PASSWD
+RUN subscription-manager register --username "${RH_REG_USERNAME}" --password "${RH_REG_PASSWD}" --auto-attach
 # RUN dnf config-manager addrepo --from-repofile=https://rpm.flightctl.io/flightctl-fedora.repo
 RUN subscription-manager repos --enable rhacm-2.13-for-rhel-9-aarch64-rpms
 RUN dnf install -y flightctl-ctl
