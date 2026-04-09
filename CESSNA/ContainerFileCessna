@@ -2,8 +2,8 @@
 FROM quay.io/fedora/fedora:latest
 
 # Install FlightGear and Subversion
-RUN dnf install -y FlightGear subversion dbus-x11 mesa-dri-drivers glx-utils \
-    dnf clean all
+RUN dnf install -y FlightGear subversion dbus-x11 mesa-dri-drivers glx-utils &&\
+    dnf -y clean all
 
 # When this container starts, immediately launch the simulator
 ENTRYPOINT ["dbus-launch", "fgfs", "--airport=KCOS", "--runway=35R", "--timeofday=noon"]
