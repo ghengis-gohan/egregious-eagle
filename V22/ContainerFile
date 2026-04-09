@@ -3,11 +3,11 @@ FROM registry.redhat.io/rhel9/rhel-bootc:9.4
 
 ARG RH_REG_USERNAME
 ARG RH_REG_PASSWD
-RUN echo "${RH_REG_USERNAME}"
-RUN echo "${RH_REG_PASSWD}"
+
 #RUN subscription-manager register --username RH_REG_USERNAME --password RH_REG_PASSWORD --force && \
 #    dnf clean all
-
+sudo dnf config-manager --set-enabled crb
+RUN dnf install -y https://dl.fedoraproject.org/pub/epel/epel-release-latest-9.noarch.rpm
 # Install Weston (Display/Streamer) and SVN
 RUN dnf install -y weston podman && \
     dnf clean all
