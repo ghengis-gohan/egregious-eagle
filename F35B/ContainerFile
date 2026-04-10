@@ -6,7 +6,7 @@ RUN sudo subscription-manager repos --enable codeready-builder-for-rhel-9-aarch6
 
 RUN dnf install -y https://dl.fedoraproject.org/pub/epel/epel-release-latest-9.noarch.rpm
 # Install Weston (Display/Streamer) and SVN
-RUN dnf install -y weston podman && \
+RUN dnf install -y weston podman linux-firmware NetworkManager-wifi wpa_supplicant pciutils && \
     dnf clean all
 
 # Setup folders to store microshift images for offline image creation

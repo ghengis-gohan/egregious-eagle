@@ -1,15 +1,12 @@
 # Start with a standard RHEL Image Mode image for 9.4
 FROM registry.redhat.io/rhel9/rhel-bootc:9.4
 
-ARG RH_REG_USERNAME
-ARG RH_REG_PASSWD
-
 RUN sudo subscription-manager repos --enable codeready-builder-for-rhel-9-aarch64-rpms || \
     dnf config-manager --set-enabled codeready-builder-for-rhel-9-aarch64-rpms 
 
 RUN dnf install -y https://dl.fedoraproject.org/pub/epel/epel-release-latest-9.noarch.rpm
 # Install Weston (Display/Streamer) and SVN
-RUN dnf install -y weston podman && \
+RUN dnf install -y weston podman linux-firmware NetworkManager-wifi wpa_supplicant pciutils && \
     dnf clean all
 
 # Setup folders to store microshift images for offline image creation
@@ -111,18 +108,20 @@ COPY flightgear.service /etc/systemd/system/flightgear.service
 
 # Enable the service so it runs automatically on boot
 RUN systemctl enable flightgear.service
-# RUN dnf config-manager addrepo --from-repofile=https://rpm.flightctl.io/flightctl-fedora.repo
-RUN subscription-manager repos --enable rhacm-2.13-for-rhel-<version>-<arch>-rpms
-RUN dnf install -y flightctl-ctl
+RUN subscription-manager clean
+ARG RH_REG_USERNAME
+ARG RH_REG_PASSWD
+RUN subscription-manager register --username "${RH_REG_USERNAME}" --password "${RH_REG_PASSWD}" --auto-attach
+
+RUN subscription-manager repos --enable rhacm-2.13-for-rhel-9-aarch64-rpms
+RUN dnf install -y flightctl-cli || \
+    dnf -y install flightctl-agent-1.0.2-1.el9.aarch64 || \
+    dnf -y install flightctl-agent
+
 # Optionnal - Add RHEM agents for integration with Red Hat Edge Manager
 RUN dnf -y copr enable @redhat-et/flightctl && \
     dnf -y install python3-pip && pip install podman-compose && \
-#    dnf -y install flightctl-agent-1.0.2-1.el9.aarch64 && \
     dnf -y clean all && \
     systemctl enable flightctl-agent.service
 
-# RUN podman login quay.io --username "${USER_NAME}" --password "${USER_PASSWD}"
-ARG FLIGHTCTL_PASSWD
-RUN flightctl login --username admin --password "${FLIGHTCTL_PASSWD}" api.modern-recon.apps.cluster-p5gmw.dynamic.redhatworkshops.io 
-RUN flightctl certificate request --signer=enrollment --expiration=365d --output=embedded > config.yaml
-COPY config.yaml /etc/flightctl/config.yaml
+COPY ../config.yaml /etc/flightctl/config.yaml

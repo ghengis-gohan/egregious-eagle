@@ -97,3 +97,8 @@ docker-compose.override.yml
 .docker/
 
 pull-secret.yaml
+kickstart.ks
+config.yaml
+ca.cert
+client-enrollment.crt
+client-enrollment.key
