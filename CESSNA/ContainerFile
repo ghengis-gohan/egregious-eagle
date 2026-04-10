@@ -1,6 +1,9 @@
 # Start with a standard RHEL Image Mode image for 9.4
 FROM registry.redhat.io/rhel9/rhel-bootc:9.4
 
+RUN subscription-manager clean && \ 
+    subscription-manager register --username "${RH_REG_USERNAME}" --password "${RH_REG_PASSWD}" --auto-attach
+    
 RUN sudo subscription-manager repos --enable codeready-builder-for-rhel-9-aarch64-rpms || \
     dnf config-manager --set-enabled codeready-builder-for-rhel-9-aarch64-rpms 
 
