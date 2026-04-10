@@ -5,15 +5,17 @@ ARG RH_REG_USERNAME
 ARG RH_REG_PASSWD
 
 RUN subscription-manager clean && \ 
-    subscription-manager register --username="${RH_REG_USERNAME}" --password="${RH_REG_PASSWD}" --auto-attach
+    subscription-manager register --username "${RH_REG_USERNAME}" --password "${RH_REG_PASSWD}" --auto-attach
 
-RUN sudo subscription-manager repos --enable codeready-builder-for-rhel-9-aarch64-rpms || \
+RUN subscription-manager repos --enable codeready-builder-for-rhel-9-aarch64-rpms || \
     dnf config-manager --set-enabled codeready-builder-for-rhel-9-aarch64-rpms 
 
 RUN dnf install -y https://dl.fedoraproject.org/pub/epel/epel-release-latest-9.noarch.rpm
-# Install Weston (Display/Streamer) and SVN
-RUN dnf install -y weston podman linux-firmware NetworkManager-wifi wpa_supplicant pciutils && \
-    dnf clean all
+# Install Weston (Display/Streamer)
+RUN dnf install -y weston podman NetworkManager-wifi wpa_supplicant pciutils && \
+    dnf clean all 
+#    subscription-manager unregister && \
+#    subscription-manager clean
 
 # Setup folders to store microshift images for offline image creation
 ENV IMAGE_STORAGE_DIR=/usr/lib/containers/storage
@@ -115,8 +117,7 @@ COPY flightgear.service /etc/systemd/system/flightgear.service
 # Enable the service so it runs automatically on boot
 RUN systemctl enable flightgear.service
 RUN subscription-manager clean
-ARG RH_REG_USERNAME
-ARG RH_REG_PASSWD
+
 RUN subscription-manager register --username "${RH_REG_USERNAME}" --password "${RH_REG_PASSWD}" --auto-attach
 
 RUN subscription-manager repos --enable rhacm-2.13-for-rhel-9-aarch64-rpms
