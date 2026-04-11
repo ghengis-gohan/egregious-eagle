@@ -1,0 +1,42 @@
+# Start with a standard RHEL Image Mode image for 9.4
+FROM registry.redhat.io/rhel9/rhel-bootc:9.4
+
+ARG RH_REG_USERNAME
+ARG RH_REG_PASSWD
+ARG USER_PASSWD
+ARG USER_NAME
+
+# 1. Register with Red Hat for the duration of the build
+RUN subscription-manager clean && \ 
+    subscription-manager register --username "${RH_REG_USERNAME}" --password "${RH_REG_PASSWD}" --auto-attach
+
+# 2. Enable necessary repositories (CRB for EPEL, ACM for Flightctl)
+RUN subscription-manager repos --enable codeready-builder-for-rhel-9-aarch64-rpms || \
+    dnf config-manager --set-enabled codeready-builder-for-rhel-9-aarch64-rpms 
+RUN subscription-manager repos --enable rhacm-2.13-for-rhel-9-aarch64-rpms
+
+# 3. Install basic utilities & EPEL (Strictly NO Wi-Fi, NO Weston, NO NVIDIA)
+RUN dnf install -y https://dl.fedoraproject.org/pub/epel/epel-release-latest-9.noarch.rpm
+RUN dnf install -y podman pciutils && \
+    dnf clean all 
+
+# 4. Create the default 'redhat' user for physical access
+RUN if [ -z "${USER_PASSWD}" ] ; then \
+        echo USER_PASSWD is a mandatory build argument && exit 1 ; \
+    fi
+RUN useradd -m -d /var/home/redhat -G wheel redhat && \
+    echo "redhat:${USER_PASSWD}" | chpasswd || true
+
+# 5. Install the Flightctl Agent (Your bridge to Red Hat Edge Manager)
+RUN dnf -y copr enable @redhat-et/flightctl && \
+    dnf -y install flightctl-agent python3-pip && \
+    pip install podman-compose && \
+    dnf -y clean all && \
+    systemctl enable flightctl-agent.service
+
+# 6. Inject the Edge Manager configuration file
+COPY ../config.yaml /etc/flightctl/config.yaml
+
+# 7. Unregister to release the seat and keep the final image perfectly clean
+RUN subscription-manager unregister && \
+    subscription-manager clean
