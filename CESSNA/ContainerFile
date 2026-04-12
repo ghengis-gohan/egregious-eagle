@@ -88,7 +88,6 @@ RUN --mount=type=secret,id=pullsecret,dst=/run/secrets/pull-secret.json \
 COPY microshift-copy-images /usr/bin/microshift-copy-images
 RUN chmod 755 /usr/bin/microshift-copy-images && \
     mkdir -p /usr/lib/systemd/system/microshift.service.d
-
 COPY microshift-copy-images.conf /usr/lib/systemd/system/microshift.service.d/microshift-copy-images.conf
 
 # Create a service to regenerate the cdi mappings for the NVIDIA Jetson Orin iGPU

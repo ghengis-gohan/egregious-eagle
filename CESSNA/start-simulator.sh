@@ -1,7 +1,7 @@
 #!/bin/bash
 
 # 1. Start Weston on the RHEL Host (Headless Kiosk + VNC on port 5900) in the background
-weston --backend=vnc-backend.so --shell=kiosk-shell.so &
+weston --backend=drm-backend.so --shell=kiosk-shell.so &
 
 # Give Weston 3 seconds to establish the Wayland display socket
 sleep 3
@@ -10,8 +10,7 @@ sleep 3
 # - Passes the Jetson's GPU (--device=/dev/dri)
 # - Passes the Weston display socket (-v and -e)
 # - Pulls the pre-built V-22 app image
-podman run --rm --net=host \
-  --device=/dev/dri \
+podman run --rm --net=host --ipc=host --device=/dev/dri --security-opt=label=disable \
   -v /run/user/$(id -u)/wayland-1:/tmp/wayland-1 \
   -e WAYLAND_DISPLAY=/tmp/wayland-1 \
-  quay.io/rh-ee-soanders/egregious-eagle:fgv22
+  quay.io/rh-ee-soanders/egregious-eagle:fgfs-cessna
