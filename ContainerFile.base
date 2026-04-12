@@ -8,7 +8,7 @@ ARG USHIFT_VER=4.18
 RUN subscription-manager register --username "${RH_REG_USERNAME}" --password "${RH_REG_PASSWD}" --auto-attach && \
     subscription-manager repos --enable codeready-builder-for-rhel-9-aarch64-rpms && \
     dnf install -y https://dl.fedoraproject.org/pub/epel/epel-release-latest-9.noarch.rpm && \
-    dnf install -y weston podman NetworkManager-wifi wpa_supplicant pciutils && \
+    dnf install -y weston podman NetworkManager-wifi wpa_supplicant pciutils flightctl-agent && \
     dnf clean all
 
 RUN curl -s -L https://nvidia.github.io/libnvidia-container/stable/rpm/nvidia-container-toolkit.repo \
@@ -21,8 +21,11 @@ RUN curl -s -L https://nvidia.github.io/libnvidia-container/stable/rpm/nvidia-co
 RUN echo "exclude=kernel* kmod-kvdo" >> /etc/yum.conf
 
 # microshift bits if you still need them
-# flightctl-agent from one chosen source only
-# user setup
+COPY ../config.yaml /etc/flightctl/config.yaml 
+RUN     systemctl enable flightctl-agent.service
+RUN useradd -m -d /var/home/redhat -G wheel redhat && \
+    echo "redhat:${USER_PASSWD}" | chpasswd || true
+
 # Mandatory firewall configuration for microshift (and VNC)
 RUN firewall-offline-cmd --zone=public --add-port=22/tcp && \
     firewall-offline-cmd --zone=public --add-port=5900/tcp && \
